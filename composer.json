@@ -1,0 +1,23 @@
+{
+    "name": "netom/phparsec",
+    "type": "library",
+    "description": "Library for implementing recursive descent parsers. (Very) loosely based on Haskell's attoparsec module.",
+    "keywords": ["parser", "recursive", "functional"],
+    "homepage": "https://github.com/netom/phparsec",
+    "license": "MIT",
+    "authors": [
+        {
+            "name":  "Fábián Tamás László",
+            "email": "giganetom@gmail.com"
+        }
+    ],
+    "require": {
+        "php":             ">=5.4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.4"
+    },
+    "autoload": {
+        "psr-0": { "PHParsec\\": "src/" }
+    }
+}
