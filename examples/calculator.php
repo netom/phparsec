@@ -1,15 +1,21 @@
 <?php
+/**
+ * A strange right-associative infix calculator without operator precedence
+ */
 
 require '../vendor/autoload.php';
 
 class Calculator extends \PHParsec\Base {
     public function expression()
     {
-        return $this->choice([
-            $this->opExp(),
-            $this->parExp(),
-            $this->number()
-        ]);
+        return function() {
+            $f = $this->choice_([
+                $this->number(),
+                $this->parExp(),
+                $this->opExp(),
+            ]);
+            return $f();
+        };
     }
 
     public function number()
@@ -75,9 +81,13 @@ class Calculator extends \PHParsec\Base {
     }
 }
 
+$c = new Calculator();
 while (true) {
     if(false === $l = readline('> ')) break;
-    $c = new Calculator($l);
-    $f = $c->expression($l);
-    print "# " . $f() . "\n";
+    try {
+        $f = $c->reset($l)->expression();
+        print "# " . $f() . "\n";
+    } catch (\Exception $e) {
+        print $e->getMessage() . "\n";
+    }
 }

@@ -6,10 +6,29 @@ class Base {
     protected $_str;
     protected $_i;
 
-    public function __construct($str)
+    public function __construct($str = null)
     {
         $this->_str = $str;
         $this->_i = 0;
+    }
+
+    public function reset($str = null)
+    {
+        if (null !== $str) {
+            $this->_str = $str;
+        }
+        $this->_i = 0;
+        return $this;
+    }
+
+    public function end()
+    {
+        return function () {
+            if ($this->_i < strlen($this->_str)) {
+                throw new ParseException("Not at the end of string", $this->_i);
+            }
+            return '';
+        };
     }
 
     public function char($c)
@@ -99,6 +118,7 @@ class Base {
         };
     }
 
+    // Leftmost
     public function choice($list)
     {
         if (!is_array($list) && ! $list instanceof \Traversable) {
@@ -115,6 +135,40 @@ class Base {
                 }
             }
             throw new ParseException("Run out of choices", $this->_i);
+        };
+    }
+
+    // Greedy
+    public function choice_($list)
+    {
+        if (!is_array($list) && ! $list instanceof \Traversable) {
+            throw new \InvalidArgumentException("The method choice only accepts arrays or instances of \\Traversable");
+        }
+        return function () use ($list) {
+            $maxLength = -1;
+            $maxValue  = null;
+            foreach ($list as $parser) {
+                $i = $this->_i;
+                try {
+                    $value  = $parser();
+                    $length = $this->_i - $i;
+                    if ($length > $maxLength) {
+                        $maxLength = $length;
+                        $maxValue  = $value;
+                    }
+                } catch (ParseException $e) {
+                    // Never mind, keep trying
+                } finally {
+                    // Restore the position
+                    $this->_i = $i;
+                }
+            }
+            if ($maxLength == -1) {
+                throw new ParseException("Run out of choices", $this->_i);
+            } else {
+                $this->_i += $maxLength;
+                return $maxValue;
+            }
         };
     }
 
