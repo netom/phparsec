@@ -2,6 +2,9 @@
 
 namespace PHParsec;
 
+/**
+ * Exception thrown on parse errors
+ */
 class ParseException extends \Exception {
     public function __construct($msg, $i)
     {
